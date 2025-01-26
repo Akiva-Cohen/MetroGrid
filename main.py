@@ -2,11 +2,16 @@ import board
 import displayio
 import framebufferio
 import rgbmatrix
+
 import time
 
+import urllib.request
+import json
 
 displayio.release_displays()
 
+#im putting my key out there its free guys so get your own ok
+key = '04d9a93a78d74ac48c2b0a4c12786142'
 map = [
     [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -50,15 +55,15 @@ locations = {
     "Takoma":((5,17),),
     "Fort Totten":((7,19),(7,20),(8,19),(8,20)),
     "Brookland-CUA":((11,21),),
-    "Rhode Island Ave":((12,21),),
+    "Rhode Island Ave-Brentwood":((12,21),),
     "NoMa-Gallaudet U":((13,21),),
     "Union Station":((14,21),),
-    "Judiciary Sq":((15,20),),
-    "Gallery Place":((15,18),(15,19)),
+    "Judiciary Square":((15,20),),
+    "Gallery Pl-Chinatown":((15,18),(15,19)),
     "Metro Center":((15,14),(15,15),(15,16)),
     "Farragut North":((11,13),),
     "Dupont Circle":((10,12),),
-    "Woodley Park":((9,11),),
+    "Woodley Park-Zoo/Adams Morgan":((9,11),),
     "Cleveland Park":((8,10),),
     "Van Ness-UDC":((8,9),),
     "Tenleytown-AU":((8,8),),
@@ -76,17 +81,17 @@ locations = {
     "West Hyattsville":((6,21),),
     "Georgia Ave-Petworth":((8,18),),
     "Columbia Heights":((9,17),),
-    "U St":((10,18),),
+    "U Street/African-Amer Civil War Memorial/Cardozo":((10,18),),
     "Shaw-Howard U":((11,19),),
-    "Mt Vernon Sq":((13,18),(13,19)),
-    "Archives":((16,18),(16,19)),
+    "Mt Vernon Sq 7th St-Convention Center":((13,18),(13,19)),
+    "Archives-Navy Memorial-Penn Quarter":((16,18),(16,19)),
     "L'Enfant Plaza":((17,18),(17,19),(18,18),(18,19),(19,18),(19,19)),
     "Waterfront":((21,20),),
     "Navy Yard-Ballpark":((21,21),),
     "Anacostia":((21,22),),
     "Congress Heights":((22,23),),
-    "Southern Ave":((23,24),),
-    "Naylor Rd":((23,25),),
+    "Southern Avenue":((23,24),),
+    "Naylor Road":((23,25),),
     "Suitland":((24,26),),
     "Branch Ave":((25,27),),
     "Ashburn":((8,0),),
@@ -102,7 +107,7 @@ locations = {
     "McLean":((14,4),),
     "East Falls Church":((15,4),),
     "Ballston-MU":((15,5),(16,5)),
-    "Virginia Sq-GMU":((15,6),(16,6)),
+    "Virginia Square-GMU":((15,6),(16,6)),
     "Clarendon":((15,7),(16,7)),
     "Court House":((15,8),(16,8)),
     "Rosslyn":((15,8),(15,9),(15,10)),
@@ -116,13 +121,13 @@ locations = {
     "Eastern Market":((17,22),(18,23),(19,24)),
     "Potomac Ave":((16,22),(17,23),(18,24)),
     "Stadium-Armory":((16,25),(17,25),(18,25)),
-    "Benning Rd":((17,27),(18,27)),
+    "Benning Road":((17,27),(18,27)),
     "Capitol Heights":((17,28),(18,28)),
-    "Addison Rd":((17,29),(18,29)),
-    "Morgan Blvd":((17,30),(18,30)),
+    "Addison Road-Seat Pleasant":((17,29),(18,29)),
+    "Morgan Boulevard":((17,30),(18,30)),
     "Downtown Largo":((17,31),(18,31)),
-    "Vienna":((15,1),),
-    "Dunn Loring":((15,2),),
+    "Vienna/Fairfax-GMU":((15,1),),
+    "Dunn Loring-Merrifield":((15,2),),
     "West Falls Church":((15,3),),
     "Minnesota Ave":((15,27),),
     "Deanwood":((14,28),),
@@ -132,7 +137,15 @@ locations = {
     "Pentagon":((22,13),(22,14)),
     "Pentagon City":((23,13),(23,14)),
     "Crystal City":((24,14),(25,13)),
-    "Ronald Reagan Washington National Airport":
+    "Ronald Reagan Washington National Airport":((26,14),(26,15)),
+    "Potomac Yard":((27,14),(27,15)),
+    "Braddock Rd":((28,14),(28,15)),
+    "King St-Old Town":((29,14),(29,15)),
+    "Eisenhower Avenue":((30,15),),
+    "Huntington":((31,15),),
+    "Franconia-Springfield":((31,8),),
+    "Van Dorn Street":((29,10),),
+    "Arlington Cemetery":((19,10),)
 }
 def makeLines(bitmap):
     for x in range(32):
@@ -150,6 +163,35 @@ def displayStations(bitmap, locations):
     for location in locations.values():
         displayStation(bitmap,location)
 
+def codeToName(code):
+    try:
+        url = "https://api.wmata.com/Rail.svc/json/jStationInfo?StationCode=" + code
+        hdr ={
+            # Request headers
+            'api_key': key,
+        }
+        req = urllib.request.Request(url, headers=hdr)
+        req.get_method = lambda: 'GET'
+        response = urllib.request.urlopen(req)
+        son = json.loads(response.read(float('inf')))
+        return son["Name"]
+    except Exception as e:
+        return "hi"
+    
+def getCodes():
+    try:
+        url = "http://api.wmata.com/Incidents.svc/json/ElevatorIncidents"
+        hdr ={
+            'api_key': key
+        }
+        req = urllib.request.Request(url,headers=hdr)
+        req.get_method = lambda: 'GET'
+        response = urllib.request.urlopen(req)
+        son = json.loads(response.read(float('inf')))
+        codes = list(set([incident["StationCode"] for incident in son["ElevatorIncidents"]]))
+        return codes
+    except Exception as e:
+        return ["none",]
 
 matrix = rgbmatrix.RGBMatrix(
     width=64, height=32, bit_depth=12,
@@ -184,4 +226,16 @@ pallete[7] = 0xffffff
 display.auto_refresh = True
 
 makeLines(bitmap)
-displayStations(bitmap,locations)
+
+def refresh(bitmap):
+    stations = []
+    for code in getCodes():
+        time.sleep(0.11)
+        stations.append(locations[codeToName(code)])
+        makeLines(bitmap)
+    for station in stations:
+        displayStation(bitmap,station)
+
+while True:
+    refresh(bitmap)
+    time.sleep(60)
