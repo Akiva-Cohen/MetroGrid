@@ -2,20 +2,20 @@
     This is an app for neon ysws.
     In order to run it open neon.hackclub.dev/editor and copy in the following code:
 
-    import board
-import displayio
-import framebufferio
-import rgbmatrix
+    import board\n
+import displayio\n
+import framebufferio\n
+import rgbmatrix\n
 
-import time
+import time\n
 
-import urllib.request
-import json
+import urllib.request\n
+import json\n
 
-displayio.release_displays()
+displayio.release_displays()\n
 
-#im putting my key out there its free guys so get your own ok
-key = '04d9a93a78d74ac48c2b0a4c12786142'
+#im putting my key out there its free guys so get your own ok\n
+key = '04d9a93a78d74ac48c2b0a4c12786142'\n
 map = [
     [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -49,7 +49,7 @@ map = [
     [0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-]
+]\n
 
 locations = {
     "Glenmont":((0,16),),
@@ -150,22 +150,22 @@ locations = {
     "Franconia-Springfield":((31,8),),
     "Van Dorn Street":((29,10),),
     "Arlington Cemetery":((19,10),)
-}
-def makeLines(bitmap):
-    for x in range(32):
-        for y in range(32):
-            bitmap[x,y] = map[y][x]
+}\n
+def makeLines(bitmap):\n
+    for x in range(32):\n
+        for y in range(32):\n
+            bitmap[x,y] = map[y][x]\n
 
-def displayPoint(bitmap, point):
-    bitmap[point[1],point[0]] = 7
+def displayPoint(bitmap, point):\n
+    bitmap[point[1],point[0]] = 7\n
 
-def displayStation(bitmap, station):
-    for point in station:
-        displayPoint(bitmap, point)
+def displayStation(bitmap, station):\n
+    for point in station:\n
+        displayPoint(bitmap, point)\n
 
-def displayStations(bitmap, locations):
-    for location in locations.values():
-        displayStation(bitmap,location)
+def displayStations(bitmap, locations):\n
+    for location in locations.values():\n
+        displayStation(bitmap,location)\n
 
 def codeToName(code):
     try:
